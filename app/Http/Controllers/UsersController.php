@@ -13,16 +13,26 @@ class UsersController extends Controller
         // ユーザ一覧をIDの降順で取得
         $users = User::orderBy('id','desc')->paginate(10);
         
-        return view('user.index',[
+        return view('users.index', [
             'users' => $users,
             ]);
     }
+
     public function show($id)
     {
+        // id の値でユーザを検索して取得
         $user = User::findOrFail($id);
-        return view('users.show',[
+        
+        // 関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+        
+        $microposts = $user->microposts()->orderBy('created_at', 'desc')->paginate(10);
+
+        // ユーザ詳細ビューでそれらを表示
+        return view('users.show', [
             'user' => $user,
-            ]);
+            'microposts' => $microposts,
+        ]);
     }
     
 }
