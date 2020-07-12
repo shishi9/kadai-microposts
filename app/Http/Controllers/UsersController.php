@@ -27,11 +27,14 @@ class UsersController extends Controller
         $user->loadRelationshipCounts();
         
         $microposts = $user->microposts()->orderBy('created_at', 'desc')->paginate(10);
+        
+        $favorites = $user->favorites($id);
 
         // ユーザ詳細ビューでそれらを表示
         return view('users.show', [
             'user' => $user,
             'microposts' => $microposts,
+            'favorites' => $favorites,  
         ]);
     }
     // ユーザのフォロー一覧ページを表示するアクション
@@ -75,4 +78,30 @@ class UsersController extends Controller
             'users' => $followers,
         ]);
     }
+
+    // ユーザのお気に入り一覧ページを表示するアクション
+    // @parm  $id  ユーザのID
+    // @return \Illuminate\Http\Response
+    public function favorites($id)
+    {
+        // dd($id);
+        // idの値でユーザを検索して取得
+        $user = User::findOrFail($id);
+
+        // 関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+
+        // ユーザのフォロー一覧を取得
+        $microposts = $user->favorites()->paginate(10);
+
+
+        // フォロー一覧ビューでそれらを表示
+        return view('users.favorites', [
+            'user' => $user,
+            'microposts' => $microposts,
+            // 'favorite' => $favorite,
+        ]);
+
+    }
+
 }
